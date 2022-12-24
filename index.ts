@@ -1,15 +1,23 @@
 import * as readline from "readline";
 
+const comment = {
+  history: "コマンド一覧を表示する",
+  "debug-on": "debug情報を表示にする",
+  "debug-off": "debug情報を非表示にする",
+  d: "debug情報を反転する",
+  "-d , --debug": "debug情報を表示",
+  "-v , --version": "バージョン情報",
+  "-h , --help": "使い方",
+} as const;
+
 const autoComplete = (line: string) => {
-  const completions =
-    "history,debug-on,debug-off,-d,--debug,-v,--version,-h,--help".split(",");
+  const completions = Object.keys(comment);
   const hits = completions.filter((c) => c.startsWith(line));
 
   // show all completions if none found
   return [hits.length ? hits : completions, line];
 };
 
-//tab補完
 class Repl {
   rl: readline.Interface;
   version: string;
@@ -30,15 +38,6 @@ class Repl {
   }
 
   usage() {
-    const comment = {
-      history: "コマンド一覧を表示する",
-      "debug-on": "debug情報を表示にする",
-      "debug-off": "debug情報を非表示にする",
-      d: "debug情報を反転する",
-      "-d , --debug": "debug情報を表示",
-      "-v , --version": "バージョン情報",
-      "-h , --help": "使い方",
-    };
     for (const [k, v] of Object.entries(comment)) {
       this.commandList.set(k, v);
     }
@@ -64,13 +63,7 @@ class Repl {
           return;
         }
 
-        if (
-          text === "--debug" ||
-          text === "-d" ||
-          text === "d" ||
-          text === "debug-on" ||
-          text === "debug-off"
-        ) {
+        if (text === "--debug" || text === "-d" || text === "d" || text === "debug-on" || text === "debug-off") {
           if (text === "d") {
             this.debug = !this.debug;
           }
@@ -106,10 +99,7 @@ class Repl {
     }
   }
 
-  async readSyncLine(
-    prompt: string,
-    cb: (text: string) => void
-  ): Promise<void> {
+  async readSyncLine(prompt: string, cb: (text: string) => void): Promise<void> {
     return new Promise((resolve) => {
       this.rl.question(prompt, (answer) => {
         cb(answer);
